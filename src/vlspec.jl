@@ -34,7 +34,7 @@ function augment_encoding_type(x::AbstractDict, data::Vega.DataValuesNode)
         
         return new_x
     else
-        return x
+    return x
 end
 end
 

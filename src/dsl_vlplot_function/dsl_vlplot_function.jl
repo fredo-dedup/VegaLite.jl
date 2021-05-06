@@ -224,7 +224,7 @@ function convert_frag_tree_to_dict(spec::VLFrag)
             Base.depwarn("`typ` in VegaLite.jl specs is deprecated, use `type` instead.", :vlplot)
         
             return "type" => p[2]
-        else
+    else
             return p
 end
     end
