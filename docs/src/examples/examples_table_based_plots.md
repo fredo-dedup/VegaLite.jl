@@ -17,7 +17,7 @@ using VegaLite, VegaDatasets
 dataset("seattle-temps") |>
 @vlplot(
     title="2010 Daily Max Temperature (F) in Seattle, WA",
-    :rect, 
+    :rect,
     x={
         "date:o",
         timeUnit=:date,
@@ -160,7 +160,7 @@ dataset("stocks") |>
     color={
         "price:q",
         aggregate="sum",
-        title="Price"        
+        title="Price"
     }
 )
 ```
@@ -226,7 +226,6 @@ dataset("cars") |>
         {calculate="datum.x2 + (datum.rank_Origin - 1) * 0.01",as="nx2"},
         {calculate="(datum.nx+datum.nx2)/2",as="xc"},
         {calculate="(datum.ny+datum.ny2)/2",as="yc"},
-        {calculate="'Origin: '+datum.Origin+', '+'Cylinders: '+datum.Cylinders",as="tt"}, #How to add a line break?
     ]
 ) +
 [
@@ -258,8 +257,7 @@ dataset("cars") |>
             y2=:ny2,
             color={"Origin:n",legend=nothing},
             opacity={field="Cylinders",type="quantitative",legend=nothing},
-            #tooltip=[{field="Origin",type="nominal"},{field="Cylinders",type="quantitative"}]  #array not supported
-            tooltip={"tt:n"} #see calculate above
+            tooltip=[{field="Origin",type="nominal"},{field="Cylinders",type="quantitative"}]
         ) +
         @vlplot(
             mark={:text,baseline="middle"},

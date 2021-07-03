@@ -17,13 +17,13 @@ end
 function augment_encoding_type(x::AbstractDict, data::Vega.DataValuesNode)
     if !haskey(x, "type") && !haskey(x, "aggregate") && haskey(x, "field") && haskey(data.columns, Symbol(x["field"]))
         new_x = copy(x)
-        
+
         jl_type = eltype(data.columns[Symbol(x["field"])])
-        
+
         if jl_type <: DataValues.DataValue
             jl_type = eltype(jl_type)
         end
-        
+
         if jl_type <: Number
             new_x["type"] = "quantitative"
         elseif jl_type <: AbstractString
@@ -31,19 +31,24 @@ function augment_encoding_type(x::AbstractDict, data::Vega.DataValuesNode)
         elseif jl_type <: Dates.AbstractTime
             new_x["type"] = "temporal"
         end
-        
+
         return new_x
     else
         return x
+    end
 end
+
+function augment_encoding_type(x::AbstractArray, data::Vega.DataValuesNode)
+    x = [augment_encoding_type(k,data) for k in x]
+    return x
 end
 
 function add_encoding_types(specdict, parentdata=nothing)
-    if (haskey(specdict, "data") && haskey(specdict["data"], "values") && specdict["data"]["values"] isa Vega.DataValuesNode) || parentdata !== nothing       
+    if (haskey(specdict, "data") && haskey(specdict["data"], "values") && specdict["data"]["values"] isa Vega.DataValuesNode) || parentdata !== nothing
         data = (haskey(specdict, "data") && haskey(specdict["data"], "values") && specdict["data"]["values"] isa Vega.DataValuesNode) ? specdict["data"]["values"] : parentdata
 
         newspec = OrderedDict{String,Any}(
-            (k == "encoding" && v isa AbstractDict) ? k => OrderedDict{String,Any}(kk => augment_encoding_type(vv, data) for (kk, vv) in v) : 
+            (k == "encoding" && v isa AbstractDict) ? k => OrderedDict{String,Any}(kk => augment_encoding_type(vv, data) for (kk, vv) in v) :
                 k == "spec" ? k => add_encoding_types(v, data) :
                 k in ("layer", "concat", "vconcat", "hconcat") ? k => [add_encoding_types(i, data) for i in v] : k => v for (k, v) in specdict
         )
@@ -59,8 +64,8 @@ function our_json_print(io, spec::VLSpec)
 end
 
 function (p::VLSpec)(data)
-    TableTraits.isiterabletable(data) || throw(ArgumentError("'data' is not a table."))  
-    
+    TableTraits.isiterabletable(data) || throw(ArgumentError("'data' is not a table."))
+
     it = IteratorInterfaceExtensions.getiterator(data)
 
     datavaluesnode = Vega.DataValuesNode(it)
